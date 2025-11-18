@@ -1,3 +1,4 @@
 {
-    "login_button": "//*[@id='login']"
+    "login_button": "//*[@id='login']",
+    "Entrar": "//span[contains(normalize-space(), 'Entrar')]"
 }

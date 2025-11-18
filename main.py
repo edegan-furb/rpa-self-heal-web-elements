@@ -22,8 +22,10 @@ def run():
     ai_engine = create_engine(driver)
 
     # Navigate to the demo login page that we want to interact with.
-    driver.get("https://the-internet.herokuapp.com/login")
-
+    # driver.get("https://the-internet.herokuapp.com/login")
+    driver.get("https://www.figma.com/login")
+    
+    
     # Let the healing engine resolve the button and click it.
     click_login(driver, ai_engine)
 
