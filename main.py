@@ -13,7 +13,7 @@ logging.basicConfig(
 
 def run():
     """
-    Minimal example that opens the Heroku login page and clicks the Login button.
+    Opens the Figma login page and clicks the Entrar button.
     """
     # Spin up a fresh Chrome driver instance for the session.
     driver = get_driver()
