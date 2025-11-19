@@ -6,6 +6,10 @@ from typing import Dict, List, Optional
 
 from selenium.webdriver.common.by import By
 
+# This module encapsulates the OpenAI-powered selector suggestion flow. It stays
+# optional so the framework can fall back to pure heuristics when an API key or
+# network access is unavailable.
+
 try:
     from .openai_secret import OPENAI_API_KEY as FILE_API_KEY
 except ImportError:  # pragma: no cover - only triggered if the file is removed.
@@ -119,6 +123,7 @@ def _collect_candidates(driver, reference: str) -> List[Dict[str, str]]:
     all_elements = driver.find_elements(By.XPATH, INTERACTIVE_XPATH)
 
     for element in all_elements:
+        # Summarize each interactive element so the LLM sees the most relevant metadata.
         summary = _summarize_element(element)
         haystack_parts = [summary.get("text", "")]
         haystack_parts.extend(summary.get("attributes", {}).values())
@@ -133,6 +138,7 @@ def _collect_candidates(driver, reference: str) -> List[Dict[str, str]]:
         # If we could not find candidates via substring matching, take the first batch
         # of interactive controls so the model still gets some context to reason with.
         for element in all_elements[:MAX_CANDIDATES]:
+            # No filtering available, but still provide trimmed metadata instead of raw HTML.
             candidates.append(_summarize_element(element))
 
     return candidates
@@ -223,6 +229,7 @@ def suggest_xpath(driver, reference: str, locators: Optional[List[str]] = None) 
         logger.info("OpenAI healing skipped because no DOM candidates are available.")
         return None
 
+    # Keep unicode characters intact so translated UIs retain their labels.
     cand_json = json.dumps(candidates, ensure_ascii=False, indent=2)
     dom_snapshot = _get_dom_snapshot(driver)
     messages = _build_prompt(reference, locators, cand_json, dom_snapshot)

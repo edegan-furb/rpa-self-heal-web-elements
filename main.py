@@ -23,7 +23,7 @@ def run():
 
     # Navigate to the demo login page that we want to interact with.
     # driver.get("https://the-internet.herokuapp.com/login")
-    driver.get("https://www.figma.com/login")
+    driver.get("https://ava3.furb.br/login/index.php")
     
     
     # Let the healing engine resolve the button and highlight it for visibility.
