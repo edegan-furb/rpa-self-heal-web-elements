@@ -1,2 +1,3 @@
 {
+    "login-button": "//button[@type='submit' and contains(@class, 'brand_buttons--brandButton') and descendant::span[contains(normalize-space(.), 'Entrar')]]"
 }

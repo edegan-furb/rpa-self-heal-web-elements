@@ -1,5 +1,5 @@
 import logging
-from core.base_page import click_healed, ensure_engine
+from core.base_page import ensure_engine, highlight_healed
 
 # Create a module-level logger so every call reports the same way.
 logger = logging.getLogger(__name__)
@@ -19,10 +19,16 @@ def click_login(driver, engine=None):
     # Build or reuse the AI engine so we have self-heal capabilities.
     engine = ensure_engine(driver, engine)
 
-    # Perform the healed click which encapsulates locator retries/learning.
-    click_healed(driver, "Entrar", LOGIN_LOCATORS, engine=engine)
+    # Highlight the healed element for visibility instead of clicking it.
+    highlight_healed(
+        driver,
+        "login-button",
+        LOGIN_LOCATORS,
+        duration=10,
+        engine=engine,
+    )
 
     # Surface a success indicator both via logging and stdout for clarity.
-    message = "Login button clicked successfully"
+    message = "Login button highlighted for 10 seconds"
     logger.info(message)
     print(message)

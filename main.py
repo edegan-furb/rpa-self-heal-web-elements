@@ -13,7 +13,7 @@ logging.basicConfig(
 
 def run():
     """
-    Opens the Figma login page and clicks the Entrar button.
+    Opens the Figma login page and highlights the Entrar button for inspection.
     """
     # Spin up a fresh Chrome driver instance for the session.
     driver = get_driver()
@@ -26,10 +26,10 @@ def run():
     driver.get("https://www.figma.com/login")
     
     
-    # Let the healing engine resolve the button and click it.
+    # Let the healing engine resolve the button and highlight it for visibility.
     click_login(driver, ai_engine)
 
-    # Always close the browser session to release resources.
+    # Always close the browser session to release resources after the highlight.
     driver.quit()
 
 

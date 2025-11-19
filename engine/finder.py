@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 
 from .healer import find_best_match, build_selector, remember
+from .openai_selector import suggest_xpath
 
 logger = logging.getLogger(__name__)
 
@@ -42,13 +43,30 @@ def find_healed(driver, engine, ref_name, locators):
 
     logger.warning("All configured locators failed for %s. AI-Heal activated.", ref_name)
 
-    # 2. AI scanning + prediction
+    # 2. OpenAI suggestion (if configured)
+    ai_xpath = suggest_xpath(driver, ref_name, locators)
+    if ai_xpath:
+        logger.info("OpenAI suggested a fallback selector for %s: %s", ref_name, ai_xpath)
+        try:
+            element = driver.find_element(By.XPATH, ai_xpath)
+            remember(engine, ref_name, ai_xpath)
+            message = f"AI-Heal success (OpenAI): selector persisted for {ref_name}"
+            logger.info(message)
+            print(message)
+            return element
+        except RECOVERABLE_EXCEPTIONS:
+            logger.info(
+                "OpenAI locator for %s did not resolve immediately. Falling back to DOM scan.",
+                ref_name,
+            )
+
+    # 3. AI scanning + prediction
     el = find_best_match(engine, ref_name)
     if not el:
         # If scanning still yields nothing we raise immediately to fail fast.
         raise Exception(f"AI-Heal failed: cannot detect element '{ref_name}'")
 
-    # 3. Build new locator
+    # 4. Build new locator
     new_xpath = build_selector(el)
     logger.info("AI-Heal generated fallback selector for %s: %s", ref_name, new_xpath)
 
@@ -57,6 +75,6 @@ def find_healed(driver, engine, ref_name, locators):
     logger.info(message)
     print(message)
 
-    # 4. Return healed element
+    # 5. Return healed element
     # Perform a fresh lookup using the new selector to return a live WebElement.
     return driver.find_element(By.XPATH, new_xpath)

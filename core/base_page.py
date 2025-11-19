@@ -1,3 +1,5 @@
+import time
+
 from engine import create_engine, find_healed as engine_find_healed
 
 
@@ -41,3 +43,58 @@ def find_healed(driver, ref_name, locators, engine=None):
 
     # Simply proxy to the core engine helper and return the WebElement.
     return engine_find_healed(driver, engine, ref_name, locators)
+
+
+def _apply_highlight(driver, element, color):
+    """
+    Inject temporary styling that outlines the element for visual emphasis.
+    """
+    driver.execute_script(
+        """
+        const el = arguments[0];
+        const color = arguments[1];
+        if (!el.hasAttribute('data-heal-original-style')) {
+            el.setAttribute('data-heal-original-style', el.getAttribute('style') || '');
+        }
+        el.style.transition = el.style.transition || 'all 0.2s ease-in-out';
+        el.style.outline = '3px solid ' + color;
+        el.style.outlineOffset = '2px';
+        el.style.boxShadow = '0 0 0 6px ' + color + '40';
+        """,
+        element,
+        color,
+    )
+
+
+def _remove_highlight(driver, element):
+    """
+    Restore the original inline style so the highlight disappears cleanly.
+    """
+    driver.execute_script(
+        """
+        const el = arguments[0];
+        const original = el.getAttribute('data-heal-original-style');
+        if (original !== null) {
+            el.setAttribute('style', original);
+            el.removeAttribute('data-heal-original-style');
+        } else {
+            el.style.outline = '';
+            el.style.outlineOffset = '';
+            el.style.boxShadow = '';
+        }
+        """,
+        element,
+    )
+
+
+def highlight_healed(driver, ref_name, locators, *, duration=10, color="#ff4d4d", engine=None):
+    """
+    Locate an element via the healing flow and highlight it for visual inspection.
+    """
+    element = find_healed(driver, ref_name, locators, engine=engine)
+    _apply_highlight(driver, element, color)
+    try:
+        time.sleep(duration)
+    finally:
+        _remove_highlight(driver, element)
+    return element
