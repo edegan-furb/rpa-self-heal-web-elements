@@ -4,9 +4,9 @@ Automation demo that shows how to keep brittle web locators alive.
 The project wraps Selenium with a lightweight "healing" engine that:
 
 - Stores every successful locator in `engine/memory.json` for future runs.
-- Falls back to AI-style fuzzy matching when all configured selectors fail.
+- Falls back to AI-style matching when all configured selectors fail.
 - Persists the new selector so the workflow becomes more resilient over time.
-- Optionally asks OpenAI for the most stable XPath before using the heuristic fuzzy scan.
+- Optionally asks OpenAI for the most stable XPath before using the heuristic scan.
 
 ## Project structure
 
@@ -62,7 +62,7 @@ You can also pass `headless` or `implicit_wait` directly to `core.driver_factory
    - The last known-good selector from `engine/memory.json`.
    - Every locator provided by the page object (`pages/login_page.py`).
    - A GPT call (`engine.openai_selector.suggest_xpath`) that inspects DOM metadata and proposes a stable XPath, when OpenAI is configured.
-   - A DOM scan + fuzzy scoring (`engine.healer.find_best_match`) when everything else fails.
+   - A DOM scan + scoring (`engine.healer.find_best_match`) when everything else fails.
 3. The newly discovered selector is saved via `engine.healer.remember()`, so the next test run starts with the healed version.
 
 ## GPT-powered healing
