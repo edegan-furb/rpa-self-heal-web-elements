@@ -1,1 +1,3 @@
 __pycache__/
+openai_secrets.py
+.vscode/
