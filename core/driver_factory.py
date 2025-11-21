@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.service import Service
 DEFAULT_WAIT_SECONDS = 10
 
 
-def _should_run_headless(headless_override):
+def should_run_headless(headless_override):
     """
     Decide if Chrome should be spawned headless.
 
@@ -36,16 +36,22 @@ def get_driver(*, headless=None, implicit_wait=None):
     options.add_experimental_option(
         "excludeSwitches", ["enable-automation", "enable-logging"]
     )
+    # Force Chrome/ChromeDriver to stay quiet unless something critical happens.
+    options.add_argument("--log-level=3")
+    options.add_argument("--silent")
 
     # Apply headless configuration if requested either via params or env vars.
-    if _should_run_headless(headless):
+    if should_run_headless(headless):
         options.add_argument("--headless=new")
         options.add_argument("--disable-gpu")
         options.add_argument("--window-size=1920,1080")
 
     # Allow callers to inject a custom ChromeDriver binary via CHROME_DRIVER_PATH.
     driver_path = os.environ.get("CHROME_DRIVER_PATH")
-    service = Service(executable_path=driver_path) if driver_path else None
+    service_kwargs = {"log_path": os.devnull}
+    if driver_path:
+        service_kwargs["executable_path"] = driver_path
+    service = Service(**service_kwargs)
 
     # Start the Chrome WebDriver using the assembled service/options.
     driver = webdriver.Chrome(service=service, options=options)
