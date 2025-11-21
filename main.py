@@ -1,6 +1,6 @@
 import logging
 
-from core.driver_factory import get_driver
+from core import get_driver
 from engine import create_engine
 from pages.login_page import click_login
 

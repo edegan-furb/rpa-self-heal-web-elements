@@ -1,5 +1,5 @@
 import logging
-from core.base_page import ensure_engine, highlight_healed
+from core import highlight_healed, ensure_engine
 
 # Create a module-level logger so every call reports the same way.
 logger = logging.getLogger(__name__)
