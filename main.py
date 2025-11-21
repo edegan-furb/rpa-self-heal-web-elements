@@ -16,14 +16,14 @@ def run():
     Opens the Figma login page and highlights the Entrar button for inspection.
     """
     # Spin up a fresh Chrome driver instance for the session.
-    driver = get_driver()
+    driver = get_driver(headless=True)
 
     # Create the AI engine that stores locator memory and accesses the DOM.
     ai_engine = create_engine(driver)
 
     # Navigate to the demo login page that we want to interact with.
     # driver.get("https://the-internet.herokuapp.com/login")
-    driver.get("https://ava3.furb.br/login/index.php")
+    driver.get("https://www.instagram.com/")
     
     
     # Let the healing engine resolve the button and highlight it for visibility.
