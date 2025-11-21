@@ -53,9 +53,9 @@ class OpenAISelectorError(RuntimeError):
     """Raised when the OpenAI-driven selector cannot be produced."""
 
 
-def _require_openai_client():
+def require_openai_client():
     """
-    Lazily import and configure the OpenAI client so we do not make the
+    Import and configure the OpenAI client so we do not make the
     dependency mandatory for users who keep the legacy heuristic flow.
     """
     try:
@@ -78,7 +78,7 @@ def _require_openai_client():
     return OpenAI(api_key=api_key)
 
 
-def _summarize_element(element) -> Dict[str, str]:
+def summarize_element(element) -> Dict[str, str]:
     """
     Extract a compact description of an element (tag, short text, and key attributes)
     so we can feed it to the language model without overwhelming the prompt budget.
@@ -113,7 +113,7 @@ def _summarize_element(element) -> Dict[str, str]:
     return summary
 
 
-def _collect_candidates(driver, reference: str) -> List[Dict[str, str]]:
+def collect_candidates(driver, reference: str) -> List[Dict[str, str]]:
     """
     Collect a limited number of DOM nodes that roughly match the reference text.
     """
@@ -124,7 +124,7 @@ def _collect_candidates(driver, reference: str) -> List[Dict[str, str]]:
 
     for element in all_elements:
         # Summarize each interactive element so the LLM sees the most relevant metadata.
-        summary = _summarize_element(element)
+        summary = summarize_element(element)
         haystack_parts = [summary.get("text", "")]
         haystack_parts.extend(summary.get("attributes", {}).values())
         haystack = " ".join(part for part in haystack_parts if part)
@@ -139,12 +139,12 @@ def _collect_candidates(driver, reference: str) -> List[Dict[str, str]]:
         # of interactive controls so the model still gets some context to reason with.
         for element in all_elements[:MAX_CANDIDATES]:
             # No filtering available, but still provide trimmed metadata instead of raw HTML.
-            candidates.append(_summarize_element(element))
+            candidates.append(summarize_element(element))
 
     return candidates
 
 
-def _get_dom_snapshot(driver) -> str:
+def get_dom_snapshot(driver) -> str:
     """
     Capture a truncated snapshot of the full DOM so the LLM can reason over
     the entire page when metadata alone is insufficient.
@@ -159,7 +159,7 @@ def _get_dom_snapshot(driver) -> str:
     return dom
 
 
-def _build_prompt(
+def build_prompt(
     reference: str,
     locators: Optional[List[str]],
     cand_json: str,
@@ -198,11 +198,11 @@ def _build_prompt(
     ]
 
 
-def _invoke_openai(messages: List[Dict[str, str]], model: str):
+def invoke_openai(messages: List[Dict[str, str]], model: str):
     """
     Call the OpenAI API and parse the JSON response that contains the xpath suggestion.
     """
-    client = _require_openai_client()
+    client = require_openai_client()
     response = client.chat.completions.create(
         model=model,
         temperature=0,
@@ -220,7 +220,7 @@ def suggest_xpath(driver, reference: str, locators: Optional[List[str]] = None) 
     Returns a string XPath or None if AI selection is not available.
     """
     try:
-        candidates = _collect_candidates(driver, reference)
+        candidates = collect_candidates(driver, reference)
     except Exception as exc:
         logger.exception("Unable to gather DOM candidates for %s: %s", reference, exc)
         return None
@@ -231,11 +231,11 @@ def suggest_xpath(driver, reference: str, locators: Optional[List[str]] = None) 
 
     # Keep unicode characters intact so translated UIs retain their labels.
     cand_json = json.dumps(candidates, ensure_ascii=False, indent=2)
-    dom_snapshot = _get_dom_snapshot(driver)
-    messages = _build_prompt(reference, locators, cand_json, dom_snapshot)
+    dom_snapshot = get_dom_snapshot(driver)
+    messages = build_prompt(reference, locators, cand_json, dom_snapshot)
 
     try:
-        payload = _invoke_openai(messages, DEFAULT_MODEL)
+        payload = invoke_openai(messages, DEFAULT_MODEL)
     except OpenAISelectorError as exc:
         logger.info("OpenAI selector disabled: %s", exc)
         return None
