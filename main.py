@@ -2,7 +2,7 @@ import logging
 
 from core import get_driver
 from engine import create_engine
-from pages.login_page import click_login
+from pages.login_page import click_login, populate_credentials
 
 # Configure application-wide logging format/level so every module shares it.
 logging.basicConfig(
@@ -13,7 +13,7 @@ logging.basicConfig(
 
 def run():
     """
-    Opens the Figma login page and highlights the Entrar button for inspection.
+    Opens the login page, populates credentials, and clicks Entrar via healing.
     """
     # Spin up a fresh Chrome driver instance for the session.
     driver = get_driver(headless=True)
@@ -24,9 +24,16 @@ def run():
     # Navigate to the demo login page that we want to interact with.
     # driver.get("https://the-internet.herokuapp.com/login")
     driver.get("https://www.instagram.com/")
-    
-    
-    # Let the healing engine resolve the button and highlight it for visibility.
+
+    # Populate the username + password fields using the healed populate helper.
+    populate_credentials(
+        driver,
+        username="demo_user",
+        password="super_secret",
+        engine=ai_engine,
+    )
+
+    # Let the healing engine resolve the button and click it.
     click_login(driver, ai_engine)
 
     # Always close the browser session to release resources after the highlight.
