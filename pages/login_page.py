@@ -1,5 +1,5 @@
 import logging
-from core import highlight_healed, ensure_engine
+from core import click_healed, ensure_engine, populate_healed
 
 # Create a module-level logger so every call reports the same way.
 logger = logging.getLogger(__name__)
@@ -11,6 +11,20 @@ LOGIN_LOCATORS = [
     "//button[contains(@class,'Entrar')]",
 ]
 
+# Healed locators for the username/email field.
+USERNAME_LOCATORS = [
+    "//input[@name='username']",
+    "//input[@aria-label='Phone number, username, or email']",
+    "//input[contains(@placeholder,'username') or contains(@aria-label,'username')]",
+]
+
+# Healed locators for the password field.
+PASSWORD_LOCATORS = [
+    "//input[@name='password']",
+    "//input[@aria-label='Password']",
+    "//input[@type='password']",
+]
+
 
 def click_login(driver, engine=None):
     """
@@ -19,16 +33,44 @@ def click_login(driver, engine=None):
     # Build or reuse the AI engine so we have self-heal capabilities.
     engine = ensure_engine(driver, engine)
 
-    # Highlight the healed element for visibility instead of clicking it.
-    highlight_healed(
+    # Click the healed element to submit the form.
+    click_healed(
         driver,
         "login-button",
         LOGIN_LOCATORS,
-        duration=10,
         engine=engine,
     )
 
     # Surface a success indicator both via logging and stdout for clarity.
-    message = "Login button highlighted for 10 seconds"
+    message = "Login button clicked via healed locator"
+    logger.info(message)
+    print(message)
+
+
+def populate_credentials(driver, username, password, *, clear_first=True, engine=None):
+    """
+    Fill in the username and password fields using healed locators.
+    """
+
+    engine = ensure_engine(driver, engine)
+
+    populate_healed(
+        driver,
+        "username-field",
+        USERNAME_LOCATORS,
+        username,
+        clear_first=clear_first,
+        engine=engine,
+    )
+    populate_healed(
+        driver,
+        "password-field",
+        PASSWORD_LOCATORS,
+        password,
+        clear_first=clear_first,
+        engine=engine,
+    )
+
+    message = "Credentials populated via healed locators"
     logger.info(message)
     print(message)
