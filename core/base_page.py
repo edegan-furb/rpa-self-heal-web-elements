@@ -34,6 +34,34 @@ def click_healed(driver, ref_name, locators, engine=None):
     return element
 
 
+def populate_healed(driver, ref_name, locators, value, *, clear_first=True, engine=None):
+    """
+    Resolve an element via AI healing and populate it with the provided value.
+
+    By default the element is cleared before sending the new value to avoid
+    accidental concatenation with any pre-filled text.
+    """
+
+    if value is None:
+        raise ValueError("populate_healed requires a non-None value to send")
+
+    # Make sure we have a valid engine before attempting to locate anything.
+    engine = ensure_engine(driver, engine)
+
+    # Reuse the shared healing helper to locate the target element.
+    element = find_healed(driver, ref_name, locators, engine=engine)
+
+    # Clear the field to prevent appending to existing input unless disabled.
+    if clear_first:
+        element.clear()
+
+    # Send the requested value to the target element.
+    element.send_keys(value)
+
+    # Return the element so callers can continue interacting if needed.
+    return element
+
+
 def find_healed(driver, ref_name, locators, engine=None):
     """
     Locate an element via the healing strategy without interacting with it.
