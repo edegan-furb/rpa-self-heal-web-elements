@@ -42,14 +42,12 @@ def populate_healed(driver, ref_name, locators, value, *, clear_first=True, engi
     accidental concatenation with any pre-filled text.
     """
 
-    if value is None:
-        raise ValueError("populate_healed requires a non-None value to send")
-
     # Make sure we have a valid engine before attempting to locate anything.
     engine = ensure_engine(driver, engine)
 
-    # Reuse the shared healing helper to locate the target element.
-    element = find_healed(driver, ref_name, locators, engine=engine)
+    # Delegate to the core engine to actually resolve the element using
+    # learned selectors, provided locators, or AI fallback.
+    element = engine_find_healed(driver, engine, ref_name, locators)
 
     # Clear the field to prevent appending to existing input unless disabled.
     if clear_first:
