@@ -1,10 +1,10 @@
 # RPA Self-Heal Web Elements
 
-Automation demo that shows how to keep brittle web locators alive.  
-The project wraps Selenium with a lightweight "healing" engine that:
+Automation demo that shows how to keep web locators alive.  
+The project wraps Selenium with a "healing" engine that:
 
 - Stores every successful locator in `engine/memory.json` for future runs.
-- Falls back to AI-style matching when all configured selectors fail.
+- Falls back to matching when all configured selectors fail.
 - Persists the new selector so the workflow becomes more resilient over time.
 - Optionally asks OpenAI for the most stable XPath before using the heuristic scan.
 
