@@ -73,10 +73,3 @@ Unset the API key to fall back to the pure heuristic approach.
 
 Because the engine stores JSON on disk, delete `engine/memory.json` whenever you want to reset the learned locators.
 
-## Extending the example
-
-- Build more page objects inside `pages/` and reuse the helpers in `core.base_page`.
-- Swap out the login URL in `main.py` for an internal system you want to stabilize.
-- Experiment with different scoring weights in `engine/healer.py` to favor other attributes (aria-label, data-testid, etc.).
-
-Feel free to tailor the README with organization-specific setup steps or CI instructions once you adopt this pattern.
