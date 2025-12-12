@@ -1,5 +1,9 @@
 # RPA Self-Heal Web Elements
 
+<p align="center">
+  <img src="images/project-media-preview.png" width="600">
+</p>
+
 Automation demo that shows how to keep web locators alive.  
 The project wraps Selenium with a "healing" engine that:
 
